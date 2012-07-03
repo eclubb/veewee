@@ -2,7 +2,7 @@ module Veewee
   module Command
     class Virtualbox< Veewee::Command::GroupBase
 
-      register "vbox", "Subcommand for virtualbox"
+      register "vbox", "Subcommand for VirtualBox"
       desc "build [BOX_NAME]", "Build box"
       method_option :force,:type => :boolean , :default => false, :aliases => "-f", :desc => "force the build"
       method_option :debug,:type => :boolean , :default => false, :aliases => "-d", :desc => "enable debugging"
@@ -75,7 +75,7 @@ module Veewee
           venv.definitions.undefine(definition_name,options)
           env.ui.info "Definition #{definition_name} succesfully removed" , :prefix => false
         rescue Error => ex
-          env.ui.error "#{ex}",:prefix => false
+          env.ui.error("#{ex}",:prefix => false)
           exit -1
         end
       end
@@ -108,7 +108,7 @@ module Veewee
         venv=Veewee::Environment.new(options)
         venv.ui=env.ui
         venv.definitions.each do |name,definition|
-          env.ui.info "- #{name}"
+          env.ui.info "- #{name}",:prefix => false
         end
       end
 
@@ -121,7 +121,20 @@ module Veewee
 
         venv.providers["virtualbox"].get_box(box_name).validate_vagrant(options)
         rescue Veewee::Error => ex
-          venv.ui.error ex
+          venv.ui.error(ex, :prefix => false)
+          exit -1
+        end
+      end
+
+      desc "screenshot [NAME] [PNGFILENAME]", "Takes a screenshot of the box"
+      def screenshot(box_name,pngfilename)
+        begin
+        venv=Veewee::Environment.new(options)
+        venv.ui = ::Veewee::UI::Shell.new(venv, shell)
+
+        venv.providers["virtualbox"].get_box(box_name).screenshot(pngfilename,options)
+        rescue Veewee::Error => ex
+          venv.ui.error(ex, :prefix => false)
           exit -1
         end
       end
